@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dfres34.github.io/Thailottay-official-game-shop/">
+    <meta property="og:site_name" content="Thai Lottery Scratch">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:title" content="Thai Lottery - Scratch & View Official">
+    <meta property="og:description" content="Verify your ticket and scratch to reveal the results.">
+    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Thai Lottery - Scratch & View Official">
+    <meta name="twitter:description" content="Verify your ticket and scratch to reveal the results.">
+    <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png">
+    <title>Thai Lottery - Scratch & View</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            background: radial-gradient(circle, #1e272e, #000);
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header h1 { color: #f1c40f; margin: 0; letter-spacing: 2px; text-align: center; }
+        .price-badge {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            padding: 10px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        /* টিকিটগুলো পাশাপাশি রাখার কন্টেইনার */
+        .tickets-wrapper {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .ticket-box {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .ticket-img { width: 100%; display: block; }
+
+        /* স্ক্র্যাচ ক্যানভাস শুধুমাত্র প্রথম টিকিটের জন্য */
+        #scratch-canvas {
+            position: absolute;
+            top: 2.2%; 
+            left: 48%; 
+            width: 40.5%; 
+            height: 19.5%; 
+            z-index: 10;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        .footer-info { margin-top: 30px; text-align: center; }
+        .pin-box { padding: 12px; width: 220px; border-radius: 5px; border: none; margin-bottom: 10px; }
+        .btn-unlock { 
+            padding: 12px 35px; 
+            background: #27ae60; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+
+        /* Loading screen styles */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1e272e, #000);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading-screen">
+        <div>Loading Lottery Tickets...</div>
+        <div style="margin-top: 20px; font-size: 16px;">Please wait while we load your cards securely.</div>
+    </div>
+
+    <div class="header">
+        <h1>VIP THAI LOTTERY SCRATCH</h1>
+        <p>Official Draw Results & Verification</p>
+    </div>
+
+    <div class="price-badge">FEE: 775 RIYAL (SAR)</div>
+
+    <div class="tickets-wrapper">
+        <div class="ticket-box">
+            <img src="https://i.ibb.co/mrNtTyxK/Whats-App-Image-2026-05-15-at-14-29-41.jpg" class="ticket-img">
+            <canvas id="scratch-canvas"></canvas>
+        </div>
+
+        <div class="ticket-box">
+            <img src="https://i.ibb.co/21ntsKdj/Whats-App-Image-2026-05-15-at-14-29-42.jpg" class="ticket-img" alt="Feb 16 Ticket">
+        </div>
+    </div>
+
+    <div class="footer-info">
+        <input type="text" id="secret-key" placeholder="ENTER SECRET KEY" class="pin-box">
+        <br>
+        <button class="btn-unlock" onclick="alert('ERROR: Payment not verified!')">GET FULL TICKET</button>
+        <p style="font-size: 12px; color: #888;">Note: Only the first ticket is scratchable. Second ticket is for reference only.</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function init() {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            ctx.fillStyle = '#9e9e9e'; // সিলভার কালার
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalCompositeOperation = 'destination-out';
+        }
+
+        let isPressed = false;
+
+        function scratch(e) {
+            if (!isPressed) return;
+            if (document.getElementById('secret-key').value !== '742') {
+                alert('Please enter the correct secret key to scratch.');
+                return;
+            }
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isPressed = true; scratch(e); });
+        canvas.addEventListener('mousemove', scratch);
+        window.addEventListener('mouseup', () => isPressed = false);
+
+        canvas.addEventListener('touchstart', (e) => { isPressed = true; scratch(e); e.preventDefault(); });
+        canvas.addEventListener('touchmove', (e) => { scratch(e); e.preventDefault(); });
+        canvas.addEventListener('touchend', () => isPressed = false);
+
+        window.onload = function() {
+            document.getElementById('loading-screen').style.display = 'none';
+            init();
+        };
+        window.onresize = init;
+    </script>
+</body>
+
+</html>
